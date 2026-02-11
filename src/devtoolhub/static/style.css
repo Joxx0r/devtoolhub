@@ -31,30 +31,46 @@ h1 {
     color: var(--accent);
 }
 
-/* Tool rows - vertical list */
+/* Tool list */
 .tools-list {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-.tool-row {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+/* Two-row card */
+.tool-card {
     background: var(--bg-surface);
     border: 1px solid var(--border);
     border-radius: 6px;
-    padding: 0.8rem 1rem;
     transition: border-color 0.2s;
-    min-height: 3.2rem;
 }
 
-.tool-row:hover {
+.tool-card:hover {
     border-color: var(--accent);
 }
 
-/* Status dot - fixed width so rows align */
+/* Shared row layout */
+.card-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1rem;
+}
+
+/* Top row: name + description + actions */
+.card-row-top {
+    padding-top: 0.7rem;
+    padding-bottom: 0.25rem;
+}
+
+/* Bottom row: status details */
+.card-row-bottom {
+    padding-top: 0.15rem;
+    padding-bottom: 0.6rem;
+}
+
+/* Status dot column */
 .tool-status {
     flex-shrink: 0;
     width: 12px;
@@ -78,7 +94,7 @@ h1 {
     50% { opacity: 0.4; }
 }
 
-/* Name column - fixed width */
+/* Name */
 .tool-name {
     flex-shrink: 0;
     width: 180px;
@@ -89,7 +105,7 @@ h1 {
     text-overflow: ellipsis;
 }
 
-/* Description - takes remaining space */
+/* Description */
 .tool-desc {
     flex: 1;
     color: var(--text-muted);
@@ -100,30 +116,70 @@ h1 {
     min-width: 0;
 }
 
-/* Details tags */
-.tool-details {
+/* Action buttons area */
+.tool-action {
     flex-shrink: 0;
     display: flex;
-    gap: 0.4rem;
     align-items: center;
-    flex-wrap: nowrap;
+    gap: 0.4rem;
 }
 
+/* Bottom row: state info */
+.tool-state-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+/* State badge (Running / Offline / Checking) */
+.state-badge {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    border-radius: 3px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.state-badge.up {
+    background: rgba(158, 206, 106, 0.15);
+    color: var(--green);
+}
+
+.state-badge.down {
+    background: rgba(247, 118, 142, 0.15);
+    color: var(--red);
+}
+
+.state-badge.unknown {
+    background: rgba(86, 95, 137, 0.2);
+    color: var(--text-muted);
+}
+
+/* Latency in state row */
+.state-latency {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Detail tags */
 .detail-tag {
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    padding: 0.15rem 0.5rem;
+    padding: 0.1rem 0.45rem;
     background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 4px;
-    font-size: 0.72rem;
+    border-radius: 3px;
+    font-size: 0.7rem;
     color: var(--text-muted);
     white-space: nowrap;
 }
 
 .detail-tag .detail-label {
-    color: var(--text-muted);
     opacity: 0.7;
 }
 
@@ -131,26 +187,7 @@ h1 {
     color: var(--text);
 }
 
-/* Latency */
-.tool-latency {
-    flex-shrink: 0;
-    width: 50px;
-    text-align: right;
-    font-size: 0.72rem;
-    color: var(--text-muted);
-    font-variant-numeric: tabular-nums;
-}
-
-/* Action button */
-.tool-action {
-    flex-shrink: 0;
-    width: 80px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.4rem;
-}
-
+/* Buttons */
 .btn {
     display: inline-block;
     padding: 0.25rem 0.7rem;
@@ -162,7 +199,7 @@ h1 {
     border: 1px solid var(--border);
     background: var(--bg-hover);
     color: var(--text);
-    transition: background 0.15s, border-color 0.15s;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
     white-space: nowrap;
 }
 
@@ -184,13 +221,27 @@ h1 {
     color: var(--bg);
 }
 
-/* Focus feedback */
-.focus-feedback {
-    font-size: 0.7rem;
+.btn-start {
+    border-color: var(--green);
+    color: var(--green);
+    background: transparent;
 }
 
-.focus-feedback.ok { color: var(--green); }
-.focus-feedback.err { color: var(--red); }
+.btn-start:hover {
+    background: var(--green);
+    color: var(--bg);
+}
+
+/* Button feedback states */
+.btn.btn-ok {
+    border-color: var(--green);
+    color: var(--green);
+}
+
+.btn.btn-err {
+    border-color: var(--red);
+    color: var(--red);
+}
 
 /* Footer */
 .hub-footer {
@@ -201,23 +252,3 @@ h1 {
     color: var(--text-muted);
     text-align: center;
 }
-
-/* Column header */
-.tools-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0 1rem 0.4rem;
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 600;
-}
-
-.tools-header .tool-status { width: 12px; }
-.tools-header .tool-name { width: 180px; }
-.tools-header .tool-desc { flex: 1; min-width: 0; }
-.tools-header .tool-details-hdr { flex-shrink: 0; }
-.tools-header .tool-latency { width: 50px; text-align: right; }
-.tools-header .tool-action { width: 80px; text-align: right; }

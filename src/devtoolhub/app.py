@@ -19,7 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from devtoolhub.config import HubConfig, ToolConfig, load_tools_config
-from devtoolhub.window import focus_window
+from devtoolhub.window import focus_window, launch_process
 
 logger = logging.getLogger("devtoolhub")
 
@@ -326,6 +326,24 @@ def create_app() -> FastAPI:
             return JSONResponse({"ok": True, "message": "Focused"})
         return JSONResponse(
             {"ok": False, "message": "Window not found"}, status_code=404
+        )
+
+    @app.post("/api/start/{tool_name}")
+    async def api_start(tool_name: str):
+        tool = next(
+            (t for t in hub_config.tools if t.name == tool_name),
+            None,
+        )
+        if not tool or not tool.start_command:
+            return JSONResponse(
+                {"ok": False, "message": "Tool not found or no start_command"},
+                status_code=404,
+            )
+        pid = launch_process(tool.start_command)
+        if pid:
+            return JSONResponse({"ok": True, "message": f"Started (PID {pid})"})
+        return JSONResponse(
+            {"ok": False, "message": "Failed to start"}, status_code=500
         )
 
     return app

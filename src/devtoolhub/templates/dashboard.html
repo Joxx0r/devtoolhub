@@ -10,15 +10,6 @@
 </head>
 <body>
     <h1>DevToolHub</h1>
-
-    <div class="tools-header">
-        <span class="tool-status"></span>
-        <span class="tool-name">Service</span>
-        <span class="tool-desc">Description</span>
-        <span class="tool-details-hdr">Info</span>
-        <span class="tool-latency">Ping</span>
-        <span class="tool-action"></span>
-    </div>
 {% endif %}
 
     <div class="tools-list"
@@ -28,52 +19,65 @@
         {% for tool in tools %}
         {% set st = statuses.get(tool.name) %}
         {% set status_class = st.status if st else "unknown" %}
-        <div class="tool-row">
-            <div class="tool-status">
-                <span class="status-dot {{ status_class }}"
-                      title="{{ status_class | upper }}"></span>
+        <div class="tool-card">
+            {# Row 1: Name, description, action #}
+            <div class="card-row card-row-top">
+                <div class="tool-status">
+                    <span class="status-dot {{ status_class }}"
+                          title="{{ status_class | upper }}"></span>
+                </div>
+                <div class="tool-name" title="{{ tool.name }}">{{ tool.name }}</div>
+                <div class="tool-desc" title="{{ tool.description }}">
+                    {{ tool.description }}
+                </div>
+                <div class="tool-action">
+                    {% if tool.url %}
+                        <a href="{{ tool.url }}" target="_blank" rel="noopener" class="btn">Open</a>
+                    {% endif %}
+                    {% if tool.window_title %}
+                        {% if st and st.status == "up" %}
+                            <button class="btn btn-focus"
+                                    hx-post="/api/focus/{{ tool.name | urlencode }}"
+                                    hx-swap="none">
+                                Focus
+                            </button>
+                        {% endif %}
+                    {% endif %}
+                    {% if tool.start_command and (not st or st.status != "up") %}
+                        <button class="btn btn-start"
+                                hx-post="/api/start/{{ tool.name | urlencode }}"
+                                hx-swap="none">
+                            Start
+                        </button>
+                    {% endif %}
+                </div>
             </div>
 
-            <div class="tool-name" title="{{ tool.name }}">{{ tool.name }}</div>
+            {# Row 2: Status details #}
+            <div class="card-row card-row-bottom">
+                <div class="tool-status"></div>
+                <div class="tool-state-info">
+                    {% if st and st.status == "up" %}
+                        <span class="state-badge up">Running</span>
+                    {% elif st and st.status == "down" %}
+                        <span class="state-badge down">Offline</span>
+                    {% else %}
+                        <span class="state-badge unknown">Checking...</span>
+                    {% endif %}
 
-            <div class="tool-desc" title="{{ tool.description }}">
-                {{ tool.description }}
-            </div>
+                    {% if st and st.status == "up" and st.latency_ms %}
+                        <span class="state-latency">{{ st.latency_ms }}ms</span>
+                    {% endif %}
 
-            <div class="tool-details">
-                {% if st and st.details %}
-                    {% for key, val in st.details.items() %}
-                    <span class="detail-tag">
-                        <span class="detail-label">{{ key }}</span>
-                        <span class="detail-value">{{ val }}</span>
-                    </span>
-                    {% endfor %}
-                {% endif %}
-                {% if st and st.status == "down" %}
-                    <span class="detail-tag" style="border-color: var(--red);">
-                        <span class="detail-value" style="color: var(--red);">offline</span>
-                    </span>
-                {% endif %}
-            </div>
-
-            <div class="tool-latency">
-                {% if st and st.status == "up" and st.latency_ms %}
-                    {{ st.latency_ms }}ms
-                {% endif %}
-            </div>
-
-            <div class="tool-action">
-                {% if tool.url %}
-                    <a href="{{ tool.url }}" target="_blank" rel="noopener" class="btn">Open</a>
-                {% elif tool.window_title %}
-                    <button class="btn btn-focus"
-                            hx-post="/api/focus/{{ tool.name | urlencode }}"
-                            hx-swap="innerHTML"
-                            hx-target="find .focus-feedback">
-                        Focus
-                    </button>
-                    <span class="focus-feedback"></span>
-                {% endif %}
+                    {% if st and st.details %}
+                        {% for key, val in st.details.items() %}
+                        <span class="detail-tag">
+                            <span class="detail-label">{{ key }}</span>
+                            <span class="detail-value">{{ val }}</span>
+                        </span>
+                        {% endfor %}
+                    {% endif %}
+                </div>
             </div>
         </div>
         {% endfor %}
@@ -86,16 +90,25 @@
 
     <script>
     document.body.addEventListener("htmx:afterRequest", function(evt) {
-        if (!evt.detail.pathInfo || !evt.detail.pathInfo.requestPath.startsWith("/api/focus/")) return;
-        var fb = evt.detail.target;
-        if (evt.detail.successful) {
-            fb.className = "focus-feedback ok";
-            fb.textContent = "Focused!";
-        } else {
-            fb.className = "focus-feedback err";
-            fb.textContent = "Not found";
+        var path = evt.detail.pathInfo && evt.detail.pathInfo.requestPath;
+        if (!path) return;
+        if (path.startsWith("/api/focus/") || path.startsWith("/api/start/")) {
+            // Find the button that triggered this and show brief feedback
+            var btn = evt.detail.elt;
+            if (!btn) return;
+            var orig = btn.textContent;
+            if (evt.detail.successful) {
+                btn.textContent = path.startsWith("/api/focus/") ? "Focused!" : "Started!";
+                btn.classList.add("btn-ok");
+            } else {
+                btn.textContent = "Failed";
+                btn.classList.add("btn-err");
+            }
+            setTimeout(function() {
+                btn.textContent = orig;
+                btn.classList.remove("btn-ok", "btn-err");
+            }, 2000);
         }
-        setTimeout(function() { fb.textContent = ""; }, 2000);
     });
     </script>
 </body>

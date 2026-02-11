@@ -20,6 +20,7 @@ class ToolConfig(BaseModel):
     health_check: Literal["http", "tcp", "process"] | None = None
     window_title: str | None = None
     process_pattern: str | None = None
+    start_command: str | None = None
     description: str = ""
 
     def effective_health_check(self) -> str:
