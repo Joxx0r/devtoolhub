@@ -15,5 +15,5 @@ tools:
     health_check: process
     window_title: "Unreal Scheduler"
     process_pattern: unrealscheduler
-    start_command: D:\Code\Tools\UnrealScheduler\.venv\Scripts\unrealscheduler.exe gui
+    start_command: D:\Code\Tools\UnrealScheduler\start.bat
     description: Compile scheduling & asset operations
