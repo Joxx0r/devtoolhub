@@ -35,15 +35,13 @@
                         <a href="{{ tool.url }}" target="_blank" rel="noopener" class="btn">Open</a>
                     {% endif %}
                     {% if tool.window_title %}
-                        {% if st and st.status == "up" %}
-                            <button class="btn btn-focus"
-                                    hx-post="/api/focus/{{ tool.name | urlencode }}"
-                                    hx-swap="none">
-                                Focus
-                            </button>
-                        {% endif %}
-                    {% endif %}
-                    {% if tool.start_command and (not st or st.status != "up") %}
+                        {# Smart button: focuses window if open, launches GUI if not #}
+                        <button class="btn btn-focus"
+                                hx-post="/api/focus/{{ tool.name | urlencode }}"
+                                hx-swap="none">
+                            Open
+                        </button>
+                    {% elif tool.start_command and (not st or st.status != "up") %}
                         <button class="btn btn-start"
                                 hx-post="/api/start/{{ tool.name | urlencode }}"
                                 hx-swap="none">

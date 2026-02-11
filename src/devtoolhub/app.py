@@ -19,7 +19,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from devtoolhub.config import HubConfig, ToolConfig, load_tools_config
-from devtoolhub.window import focus_window, launch_process
+from devtoolhub.window import _find_hwnd, focus_window, launch_process
 
 logger = logging.getLogger("devtoolhub")
 
@@ -312,6 +312,7 @@ def create_app() -> FastAPI:
 
     @app.post("/api/focus/{tool_name}")
     async def api_focus(tool_name: str):
+        """Focus a desktop tool's window, or launch it if the window isn't open."""
         tool = next(
             (t for t in hub_config.tools if t.name == tool_name),
             None,
@@ -321,29 +322,24 @@ def create_app() -> FastAPI:
                 {"ok": False, "message": "Tool not found or no window_title"},
                 status_code=404,
             )
-        found = focus_window(tool.window_title)
-        if found:
+
+        # Try to focus existing window
+        if focus_window(tool.window_title):
             return JSONResponse({"ok": True, "message": "Focused"})
+
+        # Window not found — launch the GUI if start_command is configured
+        if tool.start_command:
+            pid = launch_process(tool.start_command)
+            if pid:
+                return JSONResponse(
+                    {"ok": True, "message": f"Opening (PID {pid})"}
+                )
+            return JSONResponse(
+                {"ok": False, "message": "Failed to start"}, status_code=500
+            )
+
         return JSONResponse(
             {"ok": False, "message": "Window not found"}, status_code=404
-        )
-
-    @app.post("/api/start/{tool_name}")
-    async def api_start(tool_name: str):
-        tool = next(
-            (t for t in hub_config.tools if t.name == tool_name),
-            None,
-        )
-        if not tool or not tool.start_command:
-            return JSONResponse(
-                {"ok": False, "message": "Tool not found or no start_command"},
-                status_code=404,
-            )
-        pid = launch_process(tool.start_command)
-        if pid:
-            return JSONResponse({"ok": True, "message": f"Started (PID {pid})"})
-        return JSONResponse(
-            {"ok": False, "message": "Failed to start"}, status_code=500
         )
 
     return app
