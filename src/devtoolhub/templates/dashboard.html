@@ -1,0 +1,86 @@
+{% if not partial %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevToolHub</title>
+    <script src="/static/htmx.min.js"></script>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <h1>DevToolHub</h1>
+{% endif %}
+
+    <div class="tools-grid"
+         hx-get="/partials/status"
+         hx-trigger="every 10s"
+         hx-swap="innerHTML">
+        {% for tool in tools %}
+        {% set st = statuses.get(tool.name) %}
+        {% set status_class = st.status if st else "unknown" %}
+        <div class="tool-card">
+            <div class="tool-header">
+                <span class="tool-name">{{ tool.name }}</span>
+                <div class="status-info">
+                    <span class="status-label {{ status_class }}">{{ status_class | upper }}</span>
+                    <span class="status-dot {{ status_class }}"></span>
+                </div>
+            </div>
+
+            {% if tool.description %}
+            <div class="tool-description">{{ tool.description }}</div>
+            {% endif %}
+
+            <div class="tool-footer">
+                <span class="latency">
+                    {% if st and st.latency_ms and st.status == "up" %}
+                        {{ st.latency_ms }}ms
+                    {% elif st and st.status == "down" %}
+                        offline
+                    {% else %}
+                        checking...
+                    {% endif %}
+                </span>
+
+                <div style="display:flex; align-items:center;">
+                    {% if tool.url %}
+                        <a href="{{ tool.url }}" target="_blank" rel="noopener" class="btn">Open</a>
+                    {% elif tool.window_title %}
+                        <button class="btn btn-focus"
+                                hx-post="/api/focus/{{ tool.name | urlencode }}"
+                                hx-swap="innerHTML"
+                                hx-target="find .focus-feedback">
+                            Focus
+                        </button>
+                        <span class="focus-feedback"></span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+{% if not partial %}
+    <div class="hub-footer">
+        Polling every 10s &middot; {{ tools | length }} tool{{ "s" if tools | length != 1 }} configured
+    </div>
+
+    <script>
+    // Handle focus API responses
+    document.body.addEventListener("htmx:afterRequest", function(evt) {
+        if (!evt.detail.pathInfo || !evt.detail.pathInfo.requestPath.startsWith("/api/focus/")) return;
+        var fb = evt.detail.target;
+        if (evt.detail.successful) {
+            fb.className = "focus-feedback ok";
+            fb.textContent = "Focused!";
+        } else {
+            fb.className = "focus-feedback err";
+            fb.textContent = "Not found";
+        }
+        setTimeout(function() { fb.textContent = ""; }, 2000);
+    });
+    </script>
+</body>
+</html>
+{% endif %}

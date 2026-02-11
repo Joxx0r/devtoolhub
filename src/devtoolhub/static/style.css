@@ -1,0 +1,167 @@
+:root {
+    --bg: #1a1b26;
+    --bg-surface: #24283b;
+    --bg-hover: #292e42;
+    --text: #c0caf5;
+    --text-muted: #565f89;
+    --border: #3b4261;
+    --accent: #7aa2f7;
+    --green: #9ece6a;
+    --red: #f7768e;
+    --yellow: #e0af68;
+    --cyan: #7dcfff;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+h1 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: var(--accent);
+}
+
+/* Tool cards grid */
+.tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1rem;
+}
+
+.tool-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.2rem;
+    transition: border-color 0.2s;
+}
+
+.tool-card:hover {
+    border-color: var(--accent);
+}
+
+.tool-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.6rem;
+}
+
+.tool-name {
+    font-size: 1.05rem;
+    font-weight: 600;
+}
+
+.tool-description {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+}
+
+/* Status indicator */
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.status-dot.up { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.status-dot.down { background: var(--red); box-shadow: 0 0 6px var(--red); }
+.status-dot.unknown { background: var(--text-muted); }
+
+.status-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.status-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.status-label.up { color: var(--green); }
+.status-label.down { color: var(--red); }
+.status-label.unknown { color: var(--text-muted); }
+
+/* Card footer with action */
+.tool-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.8rem;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--border);
+}
+
+.latency {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+/* Buttons */
+.btn {
+    display: inline-block;
+    padding: 0.35rem 0.9rem;
+    border-radius: 5px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--bg-hover);
+    color: var(--text);
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.btn:hover {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+    text-decoration: none;
+}
+
+.btn-focus {
+    background: transparent;
+    border-color: var(--cyan);
+    color: var(--cyan);
+}
+
+.btn-focus:hover {
+    background: var(--cyan);
+    color: var(--bg);
+}
+
+/* Focus feedback */
+.focus-feedback {
+    font-size: 0.75rem;
+    margin-left: 0.5rem;
+}
+
+.focus-feedback.ok { color: var(--green); }
+.focus-feedback.err { color: var(--red); }
+
+/* Footer */
+.hub-footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    text-align: center;
+}

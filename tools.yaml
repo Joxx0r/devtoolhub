@@ -1,0 +1,18 @@
+tools:
+  # Web tools — have a URL and HTTP health check
+  - name: P4 Agent Manager
+    url: http://localhost:31028
+    health_url: http://localhost:31028/
+    description: Perforce session & changelist management for AI agents
+
+  - name: Unreal Indexer
+    url: http://localhost:3847
+    health_url: http://localhost:3847/health
+    description: Code index, type search & asset browser
+
+  # Desktop tools — detected by process, focused on click
+  - name: Unreal Scheduler
+    health_check: process
+    window_title: "Unreal Scheduler"
+    process_pattern: unrealscheduler
+    description: Compile scheduling & asset operations
