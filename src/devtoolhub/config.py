@@ -44,7 +44,7 @@ class HubConfig(BaseModel):
 class Settings(BaseSettings):
     """Application settings from environment."""
 
-    port: int = 41000
+    port: int = 41001
 
     model_config = {"env_prefix": "DEVTOOLHUB_"}
 
