@@ -10,52 +10,70 @@
 </head>
 <body>
     <h1>DevToolHub</h1>
+
+    <div class="tools-header">
+        <span class="tool-status"></span>
+        <span class="tool-name">Service</span>
+        <span class="tool-desc">Description</span>
+        <span class="tool-details-hdr">Info</span>
+        <span class="tool-latency">Ping</span>
+        <span class="tool-action"></span>
+    </div>
 {% endif %}
 
-    <div class="tools-grid"
+    <div class="tools-list"
          hx-get="/partials/status"
          hx-trigger="every 10s"
          hx-swap="innerHTML">
         {% for tool in tools %}
         {% set st = statuses.get(tool.name) %}
         {% set status_class = st.status if st else "unknown" %}
-        <div class="tool-card">
-            <div class="tool-header">
-                <span class="tool-name">{{ tool.name }}</span>
-                <div class="status-info">
-                    <span class="status-label {{ status_class }}">{{ status_class | upper }}</span>
-                    <span class="status-dot {{ status_class }}"></span>
-                </div>
+        <div class="tool-row">
+            <div class="tool-status">
+                <span class="status-dot {{ status_class }}"
+                      title="{{ status_class | upper }}"></span>
             </div>
 
-            {% if tool.description %}
-            <div class="tool-description">{{ tool.description }}</div>
-            {% endif %}
+            <div class="tool-name" title="{{ tool.name }}">{{ tool.name }}</div>
 
-            <div class="tool-footer">
-                <span class="latency">
-                    {% if st and st.latency_ms and st.status == "up" %}
-                        {{ st.latency_ms }}ms
-                    {% elif st and st.status == "down" %}
-                        offline
-                    {% else %}
-                        checking...
-                    {% endif %}
-                </span>
+            <div class="tool-desc" title="{{ tool.description }}">
+                {{ tool.description }}
+            </div>
 
-                <div style="display:flex; align-items:center;">
-                    {% if tool.url %}
-                        <a href="{{ tool.url }}" target="_blank" rel="noopener" class="btn">Open</a>
-                    {% elif tool.window_title %}
-                        <button class="btn btn-focus"
-                                hx-post="/api/focus/{{ tool.name | urlencode }}"
-                                hx-swap="innerHTML"
-                                hx-target="find .focus-feedback">
-                            Focus
-                        </button>
-                        <span class="focus-feedback"></span>
-                    {% endif %}
-                </div>
+            <div class="tool-details">
+                {% if st and st.details %}
+                    {% for key, val in st.details.items() %}
+                    <span class="detail-tag">
+                        <span class="detail-label">{{ key }}</span>
+                        <span class="detail-value">{{ val }}</span>
+                    </span>
+                    {% endfor %}
+                {% endif %}
+                {% if st and st.status == "down" %}
+                    <span class="detail-tag" style="border-color: var(--red);">
+                        <span class="detail-value" style="color: var(--red);">offline</span>
+                    </span>
+                {% endif %}
+            </div>
+
+            <div class="tool-latency">
+                {% if st and st.status == "up" and st.latency_ms %}
+                    {{ st.latency_ms }}ms
+                {% endif %}
+            </div>
+
+            <div class="tool-action">
+                {% if tool.url %}
+                    <a href="{{ tool.url }}" target="_blank" rel="noopener" class="btn">Open</a>
+                {% elif tool.window_title %}
+                    <button class="btn btn-focus"
+                            hx-post="/api/focus/{{ tool.name | urlencode }}"
+                            hx-swap="innerHTML"
+                            hx-target="find .focus-feedback">
+                        Focus
+                    </button>
+                    <span class="focus-feedback"></span>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
@@ -67,7 +85,6 @@
     </div>
 
     <script>
-    // Handle focus API responses
     document.body.addEventListener("htmx:afterRequest", function(evt) {
         if (!evt.detail.pathInfo || !evt.detail.pathInfo.requestPath.startsWith("/api/focus/")) return;
         var fb = evt.detail.target;

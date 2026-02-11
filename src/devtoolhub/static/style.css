@@ -31,95 +31,131 @@ h1 {
     color: var(--accent);
 }
 
-/* Tool cards grid */
-.tools-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1rem;
+/* Tool rows - vertical list */
+.tools-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
-.tool-card {
+.tool-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
     background: var(--bg-surface);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 1.2rem;
+    border-radius: 6px;
+    padding: 0.8rem 1rem;
     transition: border-color 0.2s;
+    min-height: 3.2rem;
 }
 
-.tool-card:hover {
+.tool-row:hover {
     border-color: var(--accent);
 }
 
-.tool-header {
+/* Status dot - fixed width so rows align */
+.tool-status {
+    flex-shrink: 0;
+    width: 12px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 0.6rem;
 }
 
-.tool-name {
-    font-size: 1.05rem;
-    font-weight: 600;
-}
-
-.tool-description {
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    margin-bottom: 1rem;
-}
-
-/* Status indicator */
 .status-dot {
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    display: inline-block;
-    flex-shrink: 0;
+    display: block;
 }
 
 .status-dot.up { background: var(--green); box-shadow: 0 0 6px var(--green); }
 .status-dot.down { background: var(--red); box-shadow: 0 0 6px var(--red); }
-.status-dot.unknown { background: var(--text-muted); }
+.status-dot.unknown { background: var(--text-muted); animation: pulse 1.5s ease-in-out infinite; }
 
-.status-info {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.8rem;
-    color: var(--text-muted);
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
 }
 
-.status-label {
-    font-size: 0.75rem;
-    text-transform: uppercase;
+/* Name column - fixed width */
+.tool-name {
+    flex-shrink: 0;
+    width: 180px;
     font-weight: 600;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.status-label.up { color: var(--green); }
-.status-label.down { color: var(--red); }
-.status-label.unknown { color: var(--text-muted); }
+/* Description - takes remaining space */
+.tool-desc {
+    flex: 1;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+}
 
-/* Card footer with action */
-.tool-footer {
+/* Details tags */
+.tool-details {
+    flex-shrink: 0;
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.detail-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.15rem 0.5rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.detail-tag .detail-label {
+    color: var(--text-muted);
+    opacity: 0.7;
+}
+
+.detail-tag .detail-value {
+    color: var(--text);
+}
+
+/* Latency */
+.tool-latency {
+    flex-shrink: 0;
+    width: 50px;
+    text-align: right;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Action button */
+.tool-action {
+    flex-shrink: 0;
+    width: 80px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-top: 0.8rem;
-    padding-top: 0.8rem;
-    border-top: 1px solid var(--border);
+    justify-content: flex-end;
+    gap: 0.4rem;
 }
 
-.latency {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-}
-
-/* Buttons */
 .btn {
     display: inline-block;
-    padding: 0.35rem 0.9rem;
-    border-radius: 5px;
-    font-size: 0.82rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 4px;
+    font-size: 0.78rem;
     font-weight: 500;
     text-decoration: none;
     cursor: pointer;
@@ -127,6 +163,7 @@ h1 {
     background: var(--bg-hover);
     color: var(--text);
     transition: background 0.15s, border-color 0.15s;
+    white-space: nowrap;
 }
 
 .btn:hover {
@@ -137,9 +174,9 @@ h1 {
 }
 
 .btn-focus {
-    background: transparent;
     border-color: var(--cyan);
     color: var(--cyan);
+    background: transparent;
 }
 
 .btn-focus:hover {
@@ -149,8 +186,7 @@ h1 {
 
 /* Focus feedback */
 .focus-feedback {
-    font-size: 0.75rem;
-    margin-left: 0.5rem;
+    font-size: 0.7rem;
 }
 
 .focus-feedback.ok { color: var(--green); }
@@ -158,10 +194,30 @@ h1 {
 
 /* Footer */
 .hub-footer {
-    margin-top: 2rem;
-    padding-top: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 0.8rem;
     border-top: 1px solid var(--border);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--text-muted);
     text-align: center;
 }
+
+/* Column header */
+.tools-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 1rem 0.4rem;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 600;
+}
+
+.tools-header .tool-status { width: 12px; }
+.tools-header .tool-name { width: 180px; }
+.tools-header .tool-desc { flex: 1; min-width: 0; }
+.tools-header .tool-details-hdr { flex-shrink: 0; }
+.tools-header .tool-latency { width: 50px; text-align: right; }
+.tools-header .tool-action { width: 80px; text-align: right; }
