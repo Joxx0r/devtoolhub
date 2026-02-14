@@ -8,6 +8,11 @@ tools:
   - name: Unreal Indexer
     url: http://localhost:3847
     health_url: http://localhost:3847/health
+    start_wsl: true
+    start_command: >-
+      export PATH="$HOME/local/node22/bin:$HOME/go/bin:/usr/local/go/bin:$PATH" &&
+      cd ~/repos/unreal-index &&
+      exec node src/service/index.js > /tmp/unreal-index.log 2>&1
     description: Code index, type search & asset browser
 
   # Desktop tools — detected by process, focused on click
@@ -15,5 +20,5 @@ tools:
     health_check: process
     window_title: "Unreal Scheduler"
     process_pattern: unrealscheduler
-    start_command: D:\Code\Tools\UnrealScheduler\start.bat
+    start_command: "%USERPROFILE%\\.claude\\repos\\unrealscheduler\\start.bat"
     description: Compile scheduling & asset operations

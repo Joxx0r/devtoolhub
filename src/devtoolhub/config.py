@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Literal
 
 import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 from pydantic_settings import BaseSettings
 
 
@@ -21,7 +21,18 @@ class ToolConfig(BaseModel):
     window_title: str | None = None
     process_pattern: str | None = None
     start_command: str | None = None
+    start_cwd: str | None = None
+    start_wsl: bool = False
     description: str = ""
+
+    @model_validator(mode="after")
+    def _expand_env_vars(self) -> ToolConfig:
+        # Only expand Windows-side paths; skip WSL commands (bash handles $VAR)
+        if not self.start_wsl and self.start_command:
+            self.start_command = os.path.expandvars(self.start_command)
+        if self.start_cwd:
+            self.start_cwd = os.path.expandvars(self.start_cwd)
+        return self
 
     def effective_health_check(self) -> str:
         """Determine which health check strategy to use."""

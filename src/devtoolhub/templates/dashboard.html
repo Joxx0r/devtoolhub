@@ -41,7 +41,8 @@
                                 hx-swap="none">
                             Open
                         </button>
-                    {% elif tool.start_command and (not st or st.status != "up") %}
+                    {% endif %}
+                    {% if tool.start_command and (not st or st.status != "up") %}
                         <button class="btn btn-start"
                                 hx-post="/api/start/{{ tool.name | urlencode }}"
                                 hx-swap="none">

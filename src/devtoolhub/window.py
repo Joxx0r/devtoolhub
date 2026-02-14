@@ -80,19 +80,40 @@ if sys.platform == "win32":
         return True
 
     CREATE_NEW_PROCESS_GROUP = 0x00000200
-    DETACHED_PROCESS = 0x00000008
+    CREATE_NO_WINDOW = 0x08000000
 
-    def launch_process(command: str) -> int | None:
+    def launch_process(
+        command: str,
+        *,
+        cwd: str | None = None,
+        wsl: bool = False,
+    ) -> int | None:
         """Launch a command as a detached process. Returns PID or None."""
         try:
-            proc = subprocess.Popen(
-                command,
-                shell=True,
-                creationflags=CREATE_NEW_PROCESS_GROUP | DETACHED_PROCESS,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                stdin=subprocess.DEVNULL,
-            )
+            if wsl:
+                # WSL services: run via wsl.exe with CREATE_NO_WINDOW
+                proc = subprocess.Popen(
+                    ["wsl", "-d", "Ubuntu", "--", "bash", "-c", command],
+                    cwd=cwd,
+                    creationflags=CREATE_NO_WINDOW,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    stdin=subprocess.DEVNULL,
+                )
+            else:
+                si = subprocess.STARTUPINFO()
+                si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                si.wShowWindow = 0  # SW_HIDE
+                proc = subprocess.Popen(
+                    command,
+                    shell=True,
+                    cwd=cwd,
+                    creationflags=CREATE_NEW_PROCESS_GROUP,
+                    startupinfo=si,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    stdin=subprocess.DEVNULL,
+                )
             return proc.pid
         except OSError:
             return None
@@ -106,12 +127,18 @@ else:
         """Stub for non-Windows platforms."""
         return False
 
-    def launch_process(command: str) -> int | None:
+    def launch_process(
+        command: str,
+        *,
+        cwd: str | None = None,
+        wsl: bool = False,
+    ) -> int | None:
         """Launch a command as a background process."""
         try:
             proc = subprocess.Popen(
                 command,
                 shell=True,
+                cwd=cwd,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL,
                 stdin=subprocess.DEVNULL,
