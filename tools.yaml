@@ -22,3 +22,11 @@ tools:
     process_pattern: unrealscheduler
     start_command: "%USERPROFILE%\\.claude\\repos\\unrealscheduler\\start.bat"
     description: Compile scheduling & asset operations
+
+  - name: Build Manager
+    health_check: process
+    window_title: "Build Manager"
+    process_pattern: build-manager
+    start_command: "npm start"
+    start_cwd: "D:\\Code\\Tools\\player"
+    description: Browse and launch game builds
